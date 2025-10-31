@@ -18,7 +18,7 @@ type Blockchain struct {
 func (bc *Blockchain) AddBlock(b *Block) {
 	b.PrevHash = bc.Chain[len(bc.Chain)-1].Hash
 
-	const difficulty = 1
+	const difficulty = 4
 	b.ProofOfWork(difficulty)
 	bc.Chain = append(bc.Chain, b)
 }

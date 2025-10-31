@@ -14,6 +14,6 @@ func main() {
 	chain.AddBlock(newBlock)
 
 	for _, block := range chain.Chain {
-		fmt.Printf("Hash: %s \n", block.Hash)
+		fmt.Printf("Hash: %s \nNonce: %d\n", block.Hash, block.Nonce)
 	}
 }

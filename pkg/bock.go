@@ -44,15 +44,14 @@ func (b *Block) CalculateHash() string {
 
 func (b *Block) ProofOfWork(difficulty int32) {
 	var difficultyString string
-	for i := 0; i < int(difficulty+1); i++ {
+	for i := 0; i < int(difficulty); i++ {
 		difficultyString += string('0')
 	}
-	println(difficultyString)
 	for {
 		b.Nonce++
 		b.Hash = b.CalculateHash()
-		if b.Hash[:difficulty+1] == difficultyString {
-			println("Block minded: ", b.Hash)
+		if b.Hash[:difficulty] == difficultyString {
+			println("Block mined: ", b.Hash)
 			break
 		}
 	}
