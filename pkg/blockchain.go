@@ -1,12 +1,5 @@
 package pkg
 
-// Transaction is the type of data that we whant to store in our chain.
-type Transaction struct {
-	Sender   string
-	Reciever string
-	Amount   float64
-}
-
 // The blockchain constructor.
 // Blockchain is initialized with the genesis block
 func CreateBlockchain() *Blockchain {

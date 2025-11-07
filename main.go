@@ -9,7 +9,11 @@ import (
 func main() {
 	chain := pkg.CreateBlockchain()
 
-	transaction := &pkg.Transaction{Sender: "User 1", Reciever: "User 2", Amount: 10}
+	chantal := pkg.CreateWallet("Chantal")
+	bob := pkg.CreateWallet("Bob")
+
+	transaction := chantal.MakeTransaction(bob.PublicKey, 10)
+
 	newBlock := pkg.CreateBlock(chain.Chain[len(chain.Chain)-1].Hash, []*pkg.Transaction{transaction})
 	chain.AddBlock(newBlock)
 
