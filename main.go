@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rsa"
 	"fmt"
 
 	"github.com/JolloDede/go_blockchain/pkg"
@@ -8,14 +9,17 @@ import (
 
 func main() {
 	chain := pkg.CreateBlockchain()
+	fiendsList := []*rsa.PublicKey{}
 
-	chantal := pkg.CreateWallet("Chantal")
-	bob := pkg.CreateWallet("Bob")
+	chantal := pkg.NewUser("Chantal", "Chantal loves to have blockchain assets", chain)
+	chantal.AddWallet(pkg.CreateWallet("main"))
 
-	transaction := chantal.MakeTransaction(bob.PublicKey, 10)
+	bob := pkg.NewUser("Bob", "Bob loves to mine blocks", chain)
+	fiendsList = append(fiendsList, bob.AddWallet(pkg.CreateWallet("Bob")))
 
-	newBlock := pkg.CreateBlock(chain.Chain[len(chain.Chain)-1].Hash, []*pkg.Transaction{transaction})
-	chain.AddBlock(newBlock)
+	transaction := chantal.MakeTransaction(fiendsList[0], 10)
+
+	bob.MineBlock([]*pkg.Transaction{transaction})
 
 	for _, block := range chain.Chain {
 		fmt.Printf("Hash: %s \nNonce: %d\n", block.Hash, block.Nonce)
