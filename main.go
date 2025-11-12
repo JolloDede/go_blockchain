@@ -1,27 +1,41 @@
 package main
 
 import (
-	"crypto/rsa"
 	"fmt"
 
-	"github.com/JolloDede/go_blockchain/pkg"
+	"github.com/JolloDede/go_blockchain/pkg/blockchain"
+	"github.com/JolloDede/go_blockchain/pkg/user"
 )
 
 func main() {
-	chain := pkg.CreateBlockchain()
-	fiendsList := []*rsa.PublicKey{}
+	chain := blockchain.CreateBlockchain()
 
-	chantal := pkg.NewUser("Chantal", "Chantal loves to have blockchain assets", chain)
-	chantal.AddWallet(pkg.CreateWallet("main"))
+	chantal := user.NewUser("Chantal", "Chantal loves to have blockchain assets", chain)
+	chantal.AddWallet(chain.AddWallet())
 
-	bob := pkg.NewUser("Bob", "Bob loves to mine blocks", chain)
-	fiendsList = append(fiendsList, bob.AddWallet(pkg.CreateWallet("Bob")))
+	bob := user.NewUser("Bob", "Bob loves to mine blocks", chain)
+	bob.AddWallet(chain.AddWallet())
 
-	transaction := chantal.MakeTransaction(fiendsList[0], 10)
+	chantal.AddFriend(bob.GivePublicKey())
+	bob.AddFriend(chantal.GivePublicKey())
 
-	bob.MineBlock([]*pkg.Transaction{transaction})
+	go chantalsLive(chantal)
+	go bobsLive(bob)
 
 	for _, block := range chain.Chain {
 		fmt.Printf("Hash: %s \nNonce: %d\n", block.Hash, block.Nonce)
 	}
+}
+
+func chantalsLive(u *user.User) {
+	bobsIndex := 0 // index of bob in friends list
+	u.MakeTransaction(u.GetFriend(bobsIndex), 10.0)
+}
+
+func bobsLive(u *user.User) {
+	chantalsIndex := 0 // index of chantal in friends list
+	u.MineBlock()
+
+	u.MakeTransaction(u.GetFriend(chantalsIndex), 5.0)
+	u.MineBlock()
 }
