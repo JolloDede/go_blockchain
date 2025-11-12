@@ -22,9 +22,7 @@ func CreateBlock(prevHash string, transactions []*Transaction) *Block {
 	return b
 }
 
-// The main structure the blockchain revolves around.
-// The transaction, timestamp and staticData are private
-// because they shouldnt change after the creation.
+// Block is a single part of a blockchain
 type Block struct {
 	timestamp    string
 	Hash         string
