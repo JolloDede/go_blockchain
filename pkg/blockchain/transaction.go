@@ -1,4 +1,4 @@
-package pkg
+package blockchain
 
 import (
 	"crypto/rsa"

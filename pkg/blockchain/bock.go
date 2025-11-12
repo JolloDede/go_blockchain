@@ -1,4 +1,4 @@
-package pkg
+package blockchain
 
 import (
 	"crypto/sha256"
@@ -23,6 +23,13 @@ func CreateBlock(prevHash string, transactions []*Transaction) *Block {
 }
 
 // Block is a single part of a blockchain
+// / Fields:
+// - timestamp: the time the block was created
+// - Hash: the hash of the block
+// - PrevHash: the hash of the previous block
+// - transactions: a slice of transactions included in the block
+// - Nonce: a number used for proof of work
+// - staticData: a cached string representation of the transactions for hashing
 type Block struct {
 	timestamp    string
 	Hash         string
@@ -53,16 +60,21 @@ func (b *Block) CalculateHash() string {
 
 // In this function the CalculateHash is called until the the difficulty of the hash is enough
 func (b *Block) ProofOfWork(difficulty int32) {
-	var difficultyString string
-	for i := 0; i < int(difficulty); i++ {
-		difficultyString += string('0')
-	}
 	for {
 		b.Nonce++
 		b.Hash = b.CalculateHash()
-		if b.Hash[:difficulty] == difficultyString {
+		if b.ValidateDifficulty(difficulty) {
 			println("Block mined: ", b.Hash)
 			break
 		}
 	}
+}
+
+// This function checks if the hash of the block meets the required difficulty
+func (b *Block) ValidateDifficulty(difficulty int32) bool {
+	var difficultyString string
+	for i := 0; i < int(difficulty); i++ {
+		difficultyString += string('0')
+	}
+	return b.Hash[:difficulty] == difficultyString
 }
