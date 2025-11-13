@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/JolloDede/go_blockchain/pkg/blockchain"
 	"github.com/JolloDede/go_blockchain/pkg/user"
 )
 
 func main() {
+	var wg sync.WaitGroup
 	chain := blockchain.CreateBlockchain()
 
 	chantal := user.NewUser("Chantal", "Chantal loves to have blockchain assets", chain)
@@ -19,8 +21,16 @@ func main() {
 	chantal.AddFriend(bob.GivePublicKey())
 	bob.AddFriend(chantal.GivePublicKey())
 
-	go chantalsLive(chantal)
-	go bobsLive(bob)
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		chantalsLive(chantal)
+	}()
+	go func() {
+		defer wg.Done()
+		bobsLive(bob)
+	}()
+	wg.Wait()
 
 	for _, block := range chain.Chain {
 		fmt.Printf("Hash: %s \nNonce: %d\n", block.Hash, block.Nonce)
@@ -30,6 +40,8 @@ func main() {
 func chantalsLive(u *user.User) {
 	bobsIndex := 0 // index of bob in friends list
 	u.MakeTransaction(u.GetFriend(bobsIndex), 10.0)
+
+	u.MineBlock()
 }
 
 func bobsLive(u *user.User) {
@@ -37,5 +49,5 @@ func bobsLive(u *user.User) {
 	u.MineBlock()
 
 	u.MakeTransaction(u.GetFriend(chantalsIndex), 5.0)
-	u.MineBlock()
+	// u.MineBlock()
 }

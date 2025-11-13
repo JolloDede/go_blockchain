@@ -64,7 +64,6 @@ func (b *Block) ProofOfWork(difficulty int32) {
 		b.Nonce++
 		b.Hash = b.CalculateHash()
 		if b.ValidateDifficulty(difficulty) {
-			println("Block mined: ", b.Hash)
 			break
 		}
 	}

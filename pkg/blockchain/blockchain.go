@@ -1,6 +1,9 @@
 package blockchain
 
-import "errors"
+import (
+	"errors"
+	"sync"
+)
 
 // Function that creates a new blockchain with the genesis block
 func CreateBlockchain() *Blockchain {
@@ -16,14 +19,17 @@ type Blockchain struct {
 	transactions []*Transaction
 	Chain        []*Block
 	Wallets      []*Wallet
+	mu           sync.Mutex
 }
 
 // AddTransaction adds a new transaction to the list of pending transactions
 func (bc *Blockchain) AddBlock(b *Block) error {
 	const difficulty = 4
 	if b.ValidateDifficulty(difficulty) && b.PrevHash == bc.GetLastBlock().Hash {
-		// remove transactionsn from block from pending transactions
+		bc.mu.Lock()
+		bc.transactions = bc.transactions[len(b.transactions):]
 		bc.Chain = append(bc.Chain, b)
+		bc.mu.Unlock()
 		return nil
 	} else {
 		return errors.New("invalid block")
@@ -32,7 +38,8 @@ func (bc *Blockchain) AddBlock(b *Block) error {
 
 // GetPendingTransactions returns the first 10 pending transactions
 func (bc *Blockchain) GetPendingTransactions() []*Transaction {
-	return bc.transactions[:10]
+	remove := min(len(bc.transactions), 10)
+	return bc.transactions[:remove]
 }
 
 // GetLastBlock returns the last block in the blockchain
@@ -43,6 +50,8 @@ func (bc *Blockchain) GetLastBlock() *Block {
 // AddWallet creates a new wallet and adds it to the blockchain's wallet list
 func (bc *Blockchain) AddWallet() *Wallet {
 	w := createWallet()
+	bc.mu.Lock()
 	bc.Wallets = append(bc.Wallets, w)
+	bc.mu.Unlock()
 	return w
 }
