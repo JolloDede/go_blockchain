@@ -9,8 +9,7 @@ import (
 
 // Creates the first Block in the Blockchain called Genesis
 func CreateGenesisBlock() *Block {
-	transaction := &Transaction{Sender: "Genesis", Reciever: "Genesis", Amount: 0.0}
-	return CreateBlock("", []*Transaction{transaction})
+	return CreateBlock("", []*Transaction{})
 }
 
 // Function for creating all of the blocks in the chain

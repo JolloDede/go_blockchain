@@ -42,31 +42,53 @@ func (bc *Blockchain) AddBlock(b *Block) error {
 
 // GetPendingTransactions returns the first 10 pending transactions
 func (bc *Blockchain) GetPendingTransactions() []*Transaction {
+	bc.mu.Lock()
+	defer bc.mu.Unlock()
 	remove := min(len(bc.transactions), 10)
 	return bc.transactions[:remove]
 }
 
 // GetLastBlock returns the last block in the blockchain
 func (bc *Blockchain) GetLastBlock() *Block {
+	bc.mu.Lock()
+	defer bc.mu.Unlock()
 	return bc.Chain[len(bc.Chain)-1]
 }
 
 // AddWallet creates a new wallet and adds it to the blockchain's wallet list
 func (bc *Blockchain) AddWallet() *Wallet {
 	w := createWallet()
+
 	bc.mu.Lock()
 	bc.Wallets = append(bc.Wallets, w)
 	bc.mu.Unlock()
+
 	return w
 }
 
-type ErrBlockAlreadyMinded struct {
+func (bc *Blockchain) AddTransaction(t *Transaction) error {
+	err := VerifyTransaction(t, t.Reciever)
+
+	if err != nil {
+		return err
+	}
+
+	bc.mu.Lock()
+	bc.transactions = append(bc.transactions, t)
+	bc.mu.Unlock()
+
+	return nil
 }
 
+// ErrBlockAlreadyMinded is an error indicating that a block has already been mined
+type ErrBlockAlreadyMinded struct{}
+
+// NewErrBlockAlreadyMinded creates a new ErrBlockAlreadyMinded error
 func NewErrBlockAlreadyMinded() error {
 	return &ErrBlockAlreadyMinded{}
 }
 
+// Error returns the error message for ErrBlockAlreadyMinded
 func (e *ErrBlockAlreadyMinded) Error() string {
 	return "block has already been mined"
 }

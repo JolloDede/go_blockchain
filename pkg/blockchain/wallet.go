@@ -62,7 +62,8 @@ func (w *Wallet) signTransaction(t *Transaction) (string, error) {
 	return string(signature), nil
 }
 
-func (w *Wallet) VerifyTransaction(transaction *Transaction, recieverKey *rsa.PublicKey) error {
+// VerifyTransaction verifies the transaction with the reciever's public key
+func VerifyTransaction(transaction *Transaction, recieverKey *rsa.PublicKey) error {
 	transJson, err := json.Marshal(transaction)
 
 	if err != nil {

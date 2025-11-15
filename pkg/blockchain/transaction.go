@@ -2,19 +2,18 @@ package blockchain
 
 import (
 	"crypto/rsa"
-	"crypto/x509"
 	"errors"
 )
 
 // Function to have a unified interface for creating transactions
 func CreateTransaction(sender *rsa.PublicKey, reciever *rsa.PublicKey, amount float64) *Transaction {
-	return &Transaction{Sender: string(x509.MarshalPKCS1PublicKey(sender)), Reciever: string(x509.MarshalPKCS1PublicKey(reciever)), Amount: amount}
+	return &Transaction{Sender: sender, Reciever: reciever, Amount: amount}
 }
 
 // Transaction is the type of data that we whant to store in our chain.
 type Transaction struct {
-	Sender    string
-	Reciever  string
+	Sender    *rsa.PublicKey
+	Reciever  *rsa.PublicKey
 	Amount    float64
 	signature string
 }

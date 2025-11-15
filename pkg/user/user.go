@@ -57,8 +57,20 @@ func (u *User) MineBlock() {
 }
 
 // MakeTransaction creates a new transaction from the user's wallet
-func (u *User) MakeTransaction(reciver *rsa.PublicKey, amount float64) (*blockchain.Transaction, error) {
-	return u.wallet.MakeTransaction(reciver, amount)
+func (u *User) MakeTransaction(reciever *rsa.PublicKey, amount float64) error {
+	t, err := u.wallet.MakeTransaction(reciever, amount)
+
+	if err != nil {
+		return err
+	}
+
+	err = u.blockchain.AddTransaction(t)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // AddFriend adds a friend's public key to the user's friend list
