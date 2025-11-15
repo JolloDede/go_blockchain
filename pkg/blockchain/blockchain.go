@@ -25,15 +25,19 @@ type Blockchain struct {
 // AddTransaction adds a new transaction to the list of pending transactions
 func (bc *Blockchain) AddBlock(b *Block) error {
 	const difficulty = 4
-	if b.ValidateDifficulty(difficulty) && b.PrevHash == bc.GetLastBlock().Hash {
-		bc.mu.Lock()
-		bc.transactions = bc.transactions[len(b.transactions):]
-		bc.Chain = append(bc.Chain, b)
-		bc.mu.Unlock()
-		return nil
-	} else {
-		return errors.New("invalid block")
+
+	if !b.ValidateDifficulty(difficulty) {
+		return errors.New("Block isn't difficult enough")
 	}
+	if b.PrevHash != bc.GetLastBlock().Hash {
+		return NewErrBlockAlreadyMinded()
+	}
+	bc.mu.Lock()
+	bc.transactions = bc.transactions[len(b.transactions):]
+	bc.Chain = append(bc.Chain, b)
+	bc.mu.Unlock()
+
+	return nil
 }
 
 // GetPendingTransactions returns the first 10 pending transactions
@@ -54,4 +58,15 @@ func (bc *Blockchain) AddWallet() *Wallet {
 	bc.Wallets = append(bc.Wallets, w)
 	bc.mu.Unlock()
 	return w
+}
+
+type ErrBlockAlreadyMinded struct {
+}
+
+func NewErrBlockAlreadyMinded() error {
+	return &ErrBlockAlreadyMinded{}
+}
+
+func (e *ErrBlockAlreadyMinded) Error() string {
+	return "block has already been mined"
 }

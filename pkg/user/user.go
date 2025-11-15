@@ -46,6 +46,10 @@ func (u *User) MineBlock() {
 		block.ProofOfWork(difficulty)
 		err := u.blockchain.AddBlock(block)
 
+		if errors.Is(err, blockchain.NewErrBlockAlreadyMinded()) {
+			u.MineBlock()
+			return
+		}
 		if err == nil {
 			break
 		}
