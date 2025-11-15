@@ -6,6 +6,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/json"
+	"sync"
 )
 
 // CreateWallet creates and returns a pointer to a new Wallet initialized for use.
@@ -23,9 +24,13 @@ func createWallet() *Wallet {
 // / Fields:
 // - privateKey: a reference to the private key of the wallet
 // - PublicKey: a public facing key that allows you to send money to a adress
+// - balance: the balance of the wallet
+// - mu: a mutex for synchronizing access to the balance
 type Wallet struct {
 	privateKey *rsa.PrivateKey
 	PublicKey  *rsa.PublicKey
+	balance    float64
+	mu         sync.Mutex
 }
 
 // MakeTransaction returns a singed transaction
@@ -60,6 +65,22 @@ func (w *Wallet) signTransaction(t *Transaction) (string, error) {
 	}
 
 	return string(signature), nil
+}
+
+// GetBalance returns the balance of the wallet
+func (w *Wallet) GetBalance() float64 {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.balance
+}
+
+// setBalance sets the balance of the wallet
+//
+// This is only to be used by the blockchain when updating the balance after a block is mined
+func (w *Wallet) setBalance(amount float64) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.balance = amount
 }
 
 // VerifyTransaction verifies the transaction with the reciever's public key

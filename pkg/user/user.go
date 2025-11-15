@@ -87,3 +87,8 @@ func (u *User) GetFriend(index int) *rsa.PublicKey {
 func (u *User) GivePublicKey() *rsa.PublicKey {
 	return u.wallet.PublicKey
 }
+
+// GetWallet returns the user's wallet
+func (u *User) GetWallet() *blockchain.Wallet {
+	return u.wallet
+}

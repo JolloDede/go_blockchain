@@ -1,13 +1,14 @@
 package blockchain
 
 import (
+	"crypto/x509"
 	"errors"
 	"sync"
 )
 
 // Function that creates a new blockchain with the genesis block
 func CreateBlockchain() *Blockchain {
-	bc := &Blockchain{Chain: []*Block{CreateGenesisBlock()}, transactions: make([]*Transaction, 0), Wallets: make([]*Wallet, 0)}
+	bc := &Blockchain{Chain: []*Block{CreateGenesisBlock()}, transactions: make([]*Transaction, 0), Wallets: sync.Map{}}
 	return bc
 }
 
@@ -15,10 +16,15 @@ func CreateBlockchain() *Blockchain {
 //
 // Blockchain is the main structure that holds all of the blocks in the chain
 // It manages transactions and validates new blocks before adding them to the chain
+// / Fields:
+// // - transactions: a slice of pending transactions to be included in new blocks
+// // - Chain: a slice of blocks representing the blockchain
+// // - Wallets: a map of public keys to wallets for managing user balances
+// - mu: a mutex for synchronizing access to the blockchain
 type Blockchain struct {
 	transactions []*Transaction
 	Chain        []*Block
-	Wallets      []*Wallet
+	Wallets      sync.Map // map[string(x509.MarshalPKCS1PublicKey(w.PublicKey))]*Wallet
 	mu           sync.Mutex
 }
 
@@ -60,18 +66,33 @@ func (bc *Blockchain) AddWallet() *Wallet {
 	w := createWallet()
 
 	bc.mu.Lock()
-	bc.Wallets = append(bc.Wallets, w)
+	bc.Wallets.Store(string(x509.MarshalPKCS1PublicKey(w.PublicKey)), w)
 	bc.mu.Unlock()
 
 	return w
 }
 
+// AddTransaction adds a new transaction to the list of pending transactions
+// It also updates the balances of the sender and receiver wallets
 func (bc *Blockchain) AddTransaction(t *Transaction) error {
 	err := VerifyTransaction(t, t.Reciever)
 
 	if err != nil {
 		return err
 	}
+
+	val, ok := bc.Wallets.Load(string(x509.MarshalPKCS1PublicKey(t.Sender)))
+	if !ok {
+		return errors.New("Sender wallet not found")
+	}
+	wallet := val.(*Wallet)
+	wallet.setBalance(wallet.GetBalance() - t.Amount)
+	val2, ok := bc.Wallets.Load(string(x509.MarshalPKCS1PublicKey(t.Reciever)))
+	if !ok {
+		return errors.New("Receiver wallet not found")
+	}
+	recieverWallet := val2.(*Wallet)
+	recieverWallet.setBalance(recieverWallet.GetBalance() + t.Amount)
 
 	bc.mu.Lock()
 	bc.transactions = append(bc.transactions, t)

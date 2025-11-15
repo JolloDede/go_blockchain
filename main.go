@@ -32,6 +32,9 @@ func main() {
 	}()
 	wg.Wait()
 
+	fmt.Println("Chantals Wallet has a balance of:", chantal.GetWallet().GetBalance())
+	fmt.Println("Bobs Wallet has a balance of:", bob.GetWallet().GetBalance())
+
 	for _, block := range chain.Chain {
 		fmt.Printf("Hash: %s \nNonce: %d\n", block.Hash, block.Nonce)
 	}
