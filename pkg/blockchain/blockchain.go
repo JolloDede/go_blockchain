@@ -66,7 +66,7 @@ func (bc *Blockchain) AddWallet() *Wallet {
 	w := createWallet()
 
 	bc.mu.Lock()
-	bc.Wallets.Store(string(x509.MarshalPKCS1PublicKey(w.PublicKey)), w)
+	bc.Wallets.Store(string(x509.MarshalPKCS1PublicKey(w.GetPublicKey())), w)
 	bc.mu.Unlock()
 
 	return w

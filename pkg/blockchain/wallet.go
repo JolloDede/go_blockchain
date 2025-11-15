@@ -17,7 +17,7 @@ func createWallet() *Wallet {
 		println("Error Wallet")
 	}
 
-	return &Wallet{privateKey: privateKey, PublicKey: &privateKey.PublicKey}
+	return &Wallet{privateKey: privateKey, balance: 0}
 }
 
 // Wallet represents a simple wallet model.
@@ -28,14 +28,13 @@ func createWallet() *Wallet {
 // - mu: a mutex for synchronizing access to the balance
 type Wallet struct {
 	privateKey *rsa.PrivateKey
-	PublicKey  *rsa.PublicKey
 	balance    float64
 	mu         sync.Mutex
 }
 
 // MakeTransaction returns a singed transaction
 func (w *Wallet) MakeTransaction(publicKey *rsa.PublicKey, amount float64) (*Transaction, error) {
-	t := CreateTransaction(w.PublicKey, publicKey, amount)
+	t := CreateTransaction(w.GetPublicKey(), publicKey, amount)
 	signature, err := w.signTransaction(t)
 
 	if err != nil {
@@ -81,6 +80,11 @@ func (w *Wallet) setBalance(amount float64) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	w.balance = amount
+}
+
+// GetPublicKey returns the public key of the wallet
+func (w *Wallet) GetPublicKey() *rsa.PublicKey {
+	return &w.privateKey.PublicKey
 }
 
 // VerifyTransaction verifies the transaction with the reciever's public key
