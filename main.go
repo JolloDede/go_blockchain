@@ -41,7 +41,7 @@ func main() {
 }
 
 func chantalsLive(u *user.User) {
-	bobsIndex := 0 // index of bob in friends list
+	bobsIndex := 0 // index of bob in chantals friends list
 	err := u.MakeTransaction(u.GetFriend(bobsIndex), 10.0)
 
 	if err != nil {
@@ -52,7 +52,7 @@ func chantalsLive(u *user.User) {
 }
 
 func bobsLive(u *user.User) {
-	chantalsIndex := 0 // index of chantal in friends list
+	chantalsIndex := 0 // index of chantal in bobs friends list
 	u.MineBlock()
 
 	err := u.MakeTransaction(u.GetFriend(chantalsIndex), 5.0)
