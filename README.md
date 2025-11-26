@@ -5,13 +5,17 @@ A simple blockchain implemenation with go.
 ## Table of Contents
 
 - [Description](#description)
+- [Inner Workings](#inner-workings-of-the-project)
+- [How to run](#how-to-run)
+- [Future development](#future-development)
+- [Authors](#authors)
 
 ## Description 
 
 This project is a exploration of blockchains.
 
 
-## Working of the project
+## Inner workings of the project
 
 ### Blockchain
 
@@ -33,7 +37,7 @@ This struct is representing a person which acts on the [blockchain](#blockchain)
 
 Wallets hold a balance and the PrivateKey. The PublicKey is accessible trough a getter function. A [user](#user) can have a wallet and send and recieve money trough it.
 
-## Run
+## How to run
 
 A prerequisite is having [go](https://go.dev/) installed.
 
@@ -48,7 +52,7 @@ cd go_blockchain
 go run main.go
 ```
 
-## Further development
+## Future development
 
 - Blockchain has a map of blocks with the hash as their identifier
   - Getting the latest block would then also need some more Logik (Nonce + Latest)
